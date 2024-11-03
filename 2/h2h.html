@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head-to-Head Összehasonlítás - Winmix.hu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --pl-purple: #37003c;
+            --pl-pink: #ff2882;
+            --pl-turquoise: #00ff85;
+        }
+        
+        body {
+            background-color: var(--pl-purple);
+            background-image: 
+                linear-gradient(45deg, rgba(255, 40, 130, 0.1) 0%, transparent 70%),
+                linear-gradient(-45deg, rgba(0, 255, 133, 0.1) 0%, transparent 70%);
+            color: #fff;
+        }
+
+        .curved-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,100 C150,200 350,0 500,100' stroke='rgba(255,40,130,0.2)' fill='none'/%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: 0;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .select-custom {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .team-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        .stats-table td, .stats-table th {
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .stats-table tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .match-card {
+            background: linear-gradient(135deg, rgba(255, 40, 130, 0.2), rgba(0, 255, 133, 0.2));
+            backdrop-filter: blur(5px);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="h-full">
+    <div class="curved-lines"></div>
+    
+    <nav class="relative z-10 border-b border-white/10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img class="h-8" src="http://www.winmix.hu/logo.png" alt="Winmix">
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">Előrejelzések</a>
+                            <a href="csapatok.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">Csapatok</a>
+                            <a href="h2h.html" class="bg-[#ff2882] px-3 py-2 rounded-md text-sm font-medium">H2H</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="content-card p-8">
+                <h1 class="text-4xl font-bold text-center mb-8">Head-to-Head Összehasonlítás</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label for="team1" class="block text-sm font-medium mb-2">Válassz csapatot</label>
+                        <select id="team1" class="w-full rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent select-custom">
+                            <option value="">Válassz csapatot</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="team2" class="block text-sm font-medium mb-2">Válassz csapatot</label>
+                        <select id="team2" class="w-full rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent select-custom">
+                            <option value="">Válassz csapatot</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="comparison-result" class="hidden">
+                    <div class="flex justify-center items-center gap-8 mb-12">
+                        <div class="text-center">
+                            <img id="team1-logo" src="" alt="Team 1 logo" class="team-logo mb-4">
+                            <h3 id="team1-name" class="text-xl font-bold"></h3>
+                        </div>
+                        <div class="text-4xl font-bold text-[#ff2882]">VS</div>
+                        <div class="text-center">
+                            <img id="team2-logo" src="" alt="Team 2 logo" class="team-logo mb-4">
+                            <h3 id="team2-name" class="text-xl font-bold"></h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-8 text-center">
+                        <div id="team1-wins" class="text-3xl font-bold text-[#00ff85]"></div>
+                        <div class="text-3xl font-bold text-[#ff2882]">Győzelmek</div>
+                        <div id="team2-wins" class="text-3xl font-bold text-[#00ff85]"></div>
+                    </div>
+
+                    <table class="w-full mb-8 stats-table">
+                        <thead>
+                            <tr class="bg-white/10">
+                                <th id="stats-team1"></th>
+                                <th>Statisztika</th>
+                                <th id="stats-team2"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-body">
+                            <!-- Statistics will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-2xl font-bold mb-6">Legutóbbi mérkőzések</h3>
+                    <div id="recent-matches" class="space-y-4">
+                        <!-- Recent matches will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let matches = [];
+        let teams = [];
+
+        // Load data from the API
+        async function loadData() {
+            try {
+                const response = await fetch('https://winmix.hu/api/combined_matches_api.php');
+                const data = await response.json();
+                matches = data.matches;
+                teams = [...new Set(matches.map(match => match.home_team).concat(matches.map(match => match.away_team)))];
+                populateTeamSelects();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function populateTeamSelects() {
+            const selects = document.querySelectorAll('#team1, #team2');
+            selects.forEach(select => {
+                teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team;
+                    option.textContent = team;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function compareTeams() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (!team1 || !team2) {
+                alert('Kérjük, válasszon ki két csapatot az összehasonlításhoz!');
+                return;
+            }
+
+            const h2hMatches = matches.filter(match => 
+                (match.home_team === team1 && match.away_team === team2) || 
+                (match.home_team === team2 && match.away_team === team1)
+            );
+
+            const stats = calculateStats(h2hMatches, team1, team2);
+            displayComparison(team1, team2, stats, h2hMatches);
+        }
+
+        function calculateStats(h2hMatches, team1, team2) {
+            let stats = {
+                team1Wins: 0,
+                team2Wins: 0,
+                draws: 0,
+                team1Goals: 0,
+                team2Goals: 0,
+            };
+
+            h2hMatches.forEach(match => {
+                if (match.home_team === team1) {
+                    stats.team1Goals += match.score.home;
+                    stats.team2Goals += match.score.away;
+                    if (match.score.home > match.score.away) stats.team1Wins++;
+                    else if (match.score.home < match.score.away) stats.team2Wins++;
+                    else stats.draws++;
+                } else {
+                    stats.team2Goals += match.score.home;
+                    stats.team1Goals += match.score.away;
+                    if (match.score.home > match.score.away) stats.team2Wins++;
+                    else if (match.score.home < match.score.away) stats.team1Wins++;
+                    else stats.draws++;
+                }
+            });
+
+            return stats;
+        }
+
+        function displayComparison(team1, team2, stats, recentMatches) {
+            document.getElementById('comparison-result').classList.remove('hidden');
+            
+            // Set team names and logos
+            document.getElementById('team1-name').textContent = team1;
+            document.getElementById('team2-name').textContent = team2;
+            document.getElementById('team1-logo').src = `/placeholder.svg?height=120&width=120&text=${encodeURIComponent(team1)}`;
+            document.getElementById('team2-logo').src = `/placeholder.svg?height=120&width=120&text=${encodeURIComponent(team2)}`;
+
+            // Display wins
+            document.getElementById('team1-wins').textContent = stats.team1Wins;
+            document.getElementById('team2-wins').textContent = stats.team2Wins;
+
+            // Populate statistics table
+            const statsBody = document.getElementById('stats-body');
+            statsBody.innerHTML = `
+                <tr>
+                    <td>${stats.team1Goals}</td>
+                    <td class="font-medium">Gólok</td>
+                    <td>${stats.team2Goals}</td>
+                </tr>
+                <tr>
+                    <td>${stats.team1Wins}</td>
+                    <td class="font-medium">Győzelmek</td>
+                    <td>${stats.team2Wins}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="font-medium">Döntetlenek: ${stats.draws}</td>
+                </tr>
+            `;
+
+            // Display recent matches
+            const recentMatchesContainer = document.getElementById('recent-matches');
+            recentMatchesContainer.innerHTML = recentMatches.map(match => `
+                <div class="match-card p-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-300">${match.date}</span>
+                        <span class="font-medium">${match.competition || 'Premier League'}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-medium">${match.home_team}</span>
+                        <span class="font-bold text-[#ff2882]">${match.score.home} - ${match.score.away}</span>
+                        <span class="font-medium">${match.away_team}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Event listeners
+        document.getElementById('team1').addEventListener('change', compareTeams);
+        document.getElementById('team2').addEventListener('change', compareTeams);
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

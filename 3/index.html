@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professzionális Foci Előrejelző Rendszer PRO</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Professzionális Foci Előrejelző Rendszer PRO</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Mérkőzések megadása</h2>
+            <textarea id="matchupsInput" rows="10" class="w-full p-2 border rounded-md mb-4" placeholder='[
+  { "homeTeam": "Manchester Kék", "awayTeam": "Brighton" },
+  { "homeTeam": "Tottenham", "awayTeam": "Brentford" },
+  { "homeTeam": "Wolverhampton", "awayTeam": "Liverpool" }
+]'></textarea>
+            <div class="flex space-x-2 mb-4">
+                <button id="selectAllBtn" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-300">Kijelölés</button>
+                <button id="copyBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">Másolás</button>
+                <button id="pasteBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300">Beillesztés</button>
+                <button id="clearBtn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">Törlés</button>
+            </div>
+            <button id="runPredictionsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition duration-300">Előrejelzések futtatása</button>
+        </div>
+
+        <div id="modelInfo" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-8 rounded-md hidden"></div>
+
+        <div id="predictions" class="space-y-8"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="scriptpro.js"></script>
+</body>
+</html>

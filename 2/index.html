@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winmix.hu - Professzionális Foci Előrejelző Rendszer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --pl-purple: #37003c;
+            --pl-pink: #ff2882;
+            --pl-turquoise: #00ff85;
+        }
+        
+        body {
+            background-color: var(--pl-purple);
+            background-image: 
+                linear-gradient(45deg, rgba(255, 40, 130, 0.1) 0%, transparent 70%),
+                linear-gradient(-45deg, rgba(0, 255, 133, 0.1) 0%, transparent 70%);
+            color: #fff;
+        }
+
+        .curved-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,100 C150,200 350,0 500,100' stroke='rgba(255,40,130,0.2)' fill='none'/%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: 0;
+        }
+
+        .prediction-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #05f0ff 0%, #7b2ff7 100%);
+            transition: transform 0.3s ease;
+        }
+
+        .prediction-card:nth-child(2n) {
+            background: linear-gradient(135deg, #ff2882 0%, #7b2ff7 100%);
+        }
+
+        .prediction-card:nth-child(3n) {
+            background: linear-gradient(135deg, #00ff85 0%, #7b2ff7 100%);
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            background: rgba(55, 0, 60, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .team-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.2));
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, var(--pl-pink), #7b2ff7);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: opacity 0.2s;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .button-primary:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="h-full">
+    <div class="curved-lines"></div>
+    
+    <nav class="relative z-10 border-b border-white/10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img class="h-8" src="http://www.winmix.hu/logo.png" alt="Winmix">
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="bg-[#ff2882] px-3 py-2 rounded-md text-sm font-medium">Előrejelzések</a>
+                            <a href="csapatok.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">Csapatok</a>
+                            <a href="h2h.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">H2H</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="bg-white/10 backdrop-blur-lg p-6 rounded-lg">
+                <h1 class="text-3xl font-bold mb-8 text-center">Mérkőzés Előrejelzések</h1>
+                
+                <div class="mb-6">
+                    <textarea 
+                        id="matchupsInput" 
+                        placeholder="Adja meg a mérkőzéseket JSON formátumban..." 
+                        class="w-full p-4 border rounded-lg bg-white/5 backdrop-blur-lg text-white border-white/20"
+                        rows="6"
+                    ></textarea>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button onclick="selectAllText()" class="button-primary">Összes kijelölése</button>
+                        <button onclick="copyText()" class="button-primary">Másolás</button>
+                        <button onclick="pasteText()" class="button-primary">Beillesztés</button>
+                        <button onclick="clearText()" class="button-primary">Törlés</button>
+                    </div>
+                </div>
+
+                <button 
+                    onclick="processMatchups()" 
+                    class="w-full button-primary text-lg py-3"
+                >
+                    Előrejelzések Futtatása
+                </button>
+
+                <div id="modelInfo" class="mt-6 p-4 bg-white/10 backdrop-blur-lg rounded-lg hidden"></div>
+
+                <div id="predictions" class="mt-8 space-y-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ... (previous JavaScript code remains the same until displayPredictions function)
+
+        function displayPredictions(predictions) {
+            const container = document.getElementById('predictions');
+            container.innerHTML = '';
+
+            predictions.forEach(prediction => {
+                const card = document.createElement('div');
+                card.className = 'prediction-card';
+                
+                card.innerHTML = `
+                    <div class="card-content p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-4">
+                                <img src="${teamLogos[prediction.match.homeTeam]}" alt="${prediction.match.homeTeam}" class="team-logo">
+                                <div>
+                                    <h3 class="text-xl font-bold">${prediction.match.homeTeam}</h3>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold">VS</div>
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <h3 class="text-xl font-bold">${prediction.match.awayTeam}</h3>
+                                </div>
+                                <img src="${teamLogos[prediction.match.awayTeam]}" alt="${prediction.match.awayTeam}" class="team-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="text-3xl font-bold">${prediction.homeWins}</div>
+                                <div class="text-sm opacity-75">Hazai győzelem</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="text-3xl font-bold">${prediction.draws}</div>
+                                <div class="text-sm opacity-75">Döntetlen</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="text-3xl font-bold">${prediction.awayWins}</div>
+                                <div class="text-sm opacity-75">Vendég győzelem</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between items-center p-2 bg-white/5 rounded">
+                                <span>Mindkét csapat gólszerzési esélye:</span>
+                                <span class="font-bold">${(prediction.bothTeamsScoredProb * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-white/5 rounded">
+                                <span>Átlagos hazai gólok:</span>
+                                <span class="font-bold">${prediction.avgHomeGoals.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-white/5 rounded">
+                                <span>Átlagos vendég gólok:</span>
+                                <span class="font-bold">${prediction.avgAwayGoals.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center text-sm opacity-75">
+                            ${prediction.totalMatches} mérkőzés alapján
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // ... (rest of the JavaScript code remains the same)
+    </script>
+</body>
+</html>

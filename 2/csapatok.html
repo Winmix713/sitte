@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Csapat Statisztikák - Winmix.hu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Your CSS styles */
+        :root {
+            --pl-purple: #37003c;
+            --pl-pink: #ff2882;
+            --pl-turquoise: #00ff85;
+        }
+
+        body {
+            background-color: var(--pl-purple);
+            background-image:
+                    linear-gradient(45deg, rgba(255, 40, 130, 0.1) 0%, transparent 70%),
+                    linear-gradient(-45deg, rgba(0, 255, 133, 0.1) 0%, transparent 70%);
+            color: #fff;
+        }
+
+        .curved-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,100 C150,200 350,0 500,100' stroke='rgba(255,40,130,0.2)' fill='none'/%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: 0;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .select-custom {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .team-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        .stats-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .tab {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--pl-pink);
+            color: var(--pl-pink);
+            font-weight: bold;
+        }
+
+        .form-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        .form-win { background-color: var(--pl-turquoise); }
+        .form-draw { background-color: #f59e0b; }
+        .form-loss { background-color: var(--pl-pink); }
+    </style>
+</head>
+<body class="h-full">
+<div class="curved-lines"></div>
+
+<nav class="relative z-10 border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <img class="h-8" src="http://www.winmix.hu/logo.png" alt="Winmix">
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">Előrejelzések</a>
+                        <a href="csapatok.html" class="bg-[#ff2882] px-3 py-2 rounded-md text-sm font-medium">Csapatok</a>
+                        <a href="h2h.html" class="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium">H2H</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="relative z-10 py-10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="content-card p-8">
+            <h1 class="text-4xl font-bold text-center mb-8">Csapat Statisztikák</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <label for="team" class="block text-sm font-medium mb-2">Válassz csapatot</label>
+                    <select id="team" class="w-full rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent select-custom">
+                        <option value="">Válassz csapatot</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="season" class="block text-sm font-medium mb-2">Válassz szezont</label>
+                    <select id="season" class="w-full rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent select-custom">
+                        <option value="2023/24">2023/24</option>
+                        <option value="2022/23">2022/23</option>
+                        <option value="2021/22">2021/22</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="team-stats" class="hidden">
+                <div class="text-center mb-12">
+                    <img id="team-logo" src="" alt="Team logo" class="team-logo mx-auto mb-4">
+                    <h2 id="team-name" class="text-3xl font-bold"></h2>
+                    <p id="season-display" class="text-lg text-gray-300"></p>
+                </div>
+
+                <div class="mb-8">
+                    <div class="flex border-b border-white/20">
+                        <div class="tab active" data-tab="overview">Áttekintés</div>
+                        <div class="tab" data-tab="attack">Támadás</div>
+                        <div class="tab" data-tab="defense">Védelem</div>
+                    </div>
+                    <div id="tab-content" class="mt-4">
+                        <!-- Tab content will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="text-xl font-bold mb-4">Forma</h3>
+                    <div id="form-indicators" class="flex">
+                        <!-- Form indicators will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script>
+    let matches = [];
+    let teams = [];
+
+    async function loadData() {
+        try {
+            const response = await fetch('https://winmix.hu/api/combined_matches_api.php');
+            const data = await response.json();
+            matches = data;
+            teams = [...new Set(matches.map(match => match.home_team).concat(matches.map(match => match.away_team)))];
+            populateTeamSelect();
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
+
+    function populateTeamSelect() {
+        const select = document.getElementById('team');
+        teams.forEach(team => {
+            const option = document.createElement('option');
+            option.value = team;
+            option.textContent = team;
+            select.appendChild(option);
+        });
+    }
+
+    function getTeamLogo(teamName) {
+        const logoMap = {
+            "Vörös Ördögök": "https://resources.premierleague.com/premierleague/badges/50/t1.png",
+            "Chelsea": "https://resources.premierleague.com/premierleague/badges/50/t8.png",
+            "Liverpool": "https://resources.premierleague.com/premierleague/badges/50/t14.png",
+            "Manchester Kék": "https://resources.premierleague.com/premierleague/badges/50/t43.png",
+            "Everton": "https://resources.premierleague.com/premierleague/badges/50/t11.png",
+            "Brentford": "https://resources.premierleague.com/premierleague/badges/50/t94.png",
+            "Crystal Palace": "https://resources.premierleague.com/premierleague/badges/50/t31.png",
+            "Fulham": "https://resources.premierleague.com/premierleague/badges/50/t54.png",
+            "Wolverhampton": "https://resources.premierleague.com/premierleague/badges/50/t39.png",
+            "London Ágyúk": "https://resources.premierleague.com/premierleague/badges/50/t3.png",
+            "Brighton": "https://resources.premierleague.com/premierleague/badges/50/t36.png",
+            "Nottingham": "https://resources.premierleague.com/premierleague/badges/50/t17.png",
+            "Tottenham": "https://resources.premierleague.com/premierleague/badges/50/t6.png",
+            "Newcastle": "https://resources.premierleague.com/premierleague/badges/50/t4.png",
+            "West Ham": "https://resources.premierleague.com/premierleague/badges/50/t21.png",
+            "Aston Oroszlán": "https://resources.premierleague.com/premierleague/badges/50/t7.png"
+        };
+        return logoMap[teamName] || '';
+    }
+
+    function calculateTeamStats(team, season) {
+        const seasonYear = season.split('/')[0];
+        const teamMatches = matches.filter(match =>
+            (match.home_team === team || match.away_team === team) && match.date.startsWith(seasonYear)
+        );
+
+        let stats = {
+            matches: teamMatches.length,
+            wins: 0,
+            draws: 0,
+            losses: 0,
+            goalsFor: 0,
+            goalsAgainst: 0,
+            cleanSheets: 0,
+            form: []
+        };
+
+        teamMatches.forEach(match => {
+            const isHome = match.home_team === team;
+            const teamScore = isHome ? match.score.home : match.score.away;
+            const opponentScore = isHome ? match.score.away : match.score.home;
+
+            stats.goalsFor += teamScore;
+            stats.goalsAgainst += opponentScore;
+
+            if (teamScore > opponentScore) {
+                stats.wins++;
+                stats.form.push('W');
+            } else if (teamScore < opponentScore) {
+                stats.losses++;
+                stats.form.push('L');
+            } else {
+                stats.draws++;
+                stats.form.push('D');
+            }
+
+            if (opponentScore === 0) {
+                stats.cleanSheets++;
+            }
+        });
+
+        stats.form = stats.form.slice(-5).reverse();
+        return stats;
+    }
+
+    function displayTeamStats(team, season) {
+        const stats = calculateTeamStats(team, season);
+        document.getElementById('team-stats').classList.remove('hidden');
+        document.getElementById('team-name').textContent = team;
+        document.getElementById('season-display').textContent = season + ' szezon';
+        document.getElementById('team-logo').src = getTeamLogo(team);
+
+        updateTabContent('overview', stats);
+        updateFormIndicators(stats.form);
+
+        // Add event listeners for the tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                updateTabContent(tab.dataset.tab, stats);
+            });
+        });
+    }
+
+    function updateTabContent(tab, stats) {
+        const content = document.getElementById('tab-content');
+        switch(tab) {
+            case 'overview':
+                content.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Lejátszott meccsek</h4>
+                                <p class="text-2xl">${stats.matches}</p>
+                            </div>
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Győzelmek</h4>
+                                <p class="text-2xl">${stats.wins}</p>
+                            </div>
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Gólok</h4>
+                                <p class="text-2xl">${stats.goalsFor}</p>
+                            </div>
+                        </div>
+                    `;
+                break;
+            case 'attack':
+                content.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Rúgott gólok</h4>
+                                <p class="text-2xl">${stats.goalsFor}</p>
+                            </div>
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Mérkőzés gólok</h4>
+                                <p class="text-2xl">${(stats.goalsFor / stats.matches).toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                break;
+            case 'defense':
+                content.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Kapott gólok</h4>
+                                <p class="text-2xl">${stats.goalsAgainst}</p>
+                            </div>
+                            <div class="stats-card">
+                                <h4 class="font-bold mb-2">Clean Sheets</h4>
+                                <p class="text-2xl">${stats.cleanSheets}</p>
+                            </div>
+                        </div>
+                    `;
+                break;
+        }
+    }
+
+    function updateFormIndicators(form) {
+        const formIndicators = document.getElementById('form-indicators');
+        formIndicators.innerHTML = '';
+        form.forEach(result => {
+            const indicator = document.createElement('div');
+            indicator.classList.add('form-indicator');
+            indicator.classList.add(result === 'W' ? 'form-win' : result === 'D' ? 'form-draw' : 'form-loss');
+            indicator.textContent = result;
+            formIndicators.appendChild(indicator);
+        });
+    }
+
+    document.getElementById('team').addEventListener('change', (event) => {
+        const team = event.target.value;
+        const season = document.getElementById('season').value;
+        if (team) {
+            displayTeamStats(team, season);
+        } else {
+            document.getElementById('team-stats').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('season').addEventListener('change', (event) => {
+        const season = event.target.value;
+        const team = document.getElementById('team').value;
+        if (team) {
+            displayTeamStats(team, season);
+        }
+    });
+
+    loadData();
+</script>
+</body>
+</html>
